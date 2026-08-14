@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ Soluções Reais - Contra a Precarização</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body {
+            background: #0d1c2b;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+        .game-container {
+            max-width: 800px;
+            width: 100%;
+            background: #183544;
+            border-radius: 40px;
+            padding: 28px 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.7);
+            border: 1px solid #3f6a80;
+        }
+        h1 {
+            color: #f5d98f;
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        .sub {
+            color: #aac3d4;
+            text-align: center;
+            border-bottom: 1px solid #2b5063;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .status-panel {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .stat {
+            background: #0d202b;
+            padding: 12px 5px;
+            border-radius: 20px;
+            text-align: center;
+            border-bottom: 4px solid #3c718b;
+        }
+        .stat span { display: block; font-size: 1.8rem; font-weight: bold; color: #fff; }
+        .stat small { color: #87adc4; font-size: 0.65rem; text-transform: uppercase; }
+        .stat.good span { color: #6fcf97; }
+        .stat.bad span { color: #ff7b72; }
+        .stat.warn span { color: #f2c94a; }
+
+        .event-box {
+            background: #0b1c27;
+            border-radius: 24px;
+            padding: 22px;
+            border-left: 8px solid #e6b17e;
+            margin: 15px 0;
+            min-height: 120px;
+        }
+        .event-box h4 { color: #dba571; }
+        .event-box p { color: #d5e8f5; font-size: 1.2rem; margin: 8px 0; }
+        .hint { background: #1f4053; padding: 6px 16px; border-radius: 30px; font-size: 0.9rem; color: #b3ddf5; display: inline-block; }
+
+        .solution-panel {
+            background: #0b1f2b;
+            border-radius: 20px;
+            padding: 16px;
+            margin: 18px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            border: 1px dashed #4b7d96;
+        }
+        .solution-panel button {
+            flex: 1 1 140px;
+            padding: 14px 8px;
+            border: none;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 5px 0 #0b171f;
+        }
+        .btn-sind { background: #a57c4b; color: #1f2f38; }
+        .btn-sind:hover { background: #c99f67; transform: scale(0.96); }
+        .btn-den { background: #b13e3e; color: white; }
+        .btn-den:hover { background: #cf5252; transform: scale(0.96); }
+        .btn-org { background: #3a7a6b; color: white; }
+        .btn-org:hover { background: #4d9b88; transform: scale(0.96); }
+        .btn-next { background: #3d6b85; color: white; box-shadow: 0 5px 0 #1d3847; }
+        .btn-next:hover { background: #538bab; }
+        .btn-reset { background: #4f5f6b; color: white; box-shadow: 0 5px 0 #2b3842; }
+
+        .log {
+            margin-top: 20px;
+            background: #07141d;
+            border-radius: 20px;
+            padding: 14px;
+            color: #99bed6;
+            max-height: 90px;
+            overflow-y: auto;
+            font-size: 0.9rem;
+        }
+        .log strong { color: #f5c78a; }
+        button:disabled { opacity: 0.4; transform: scale(0.95); pointer-events: none; }
+        @media (max-width: 550px) {
+            .status-panel { grid-template-columns: repeat(2, 1fr); }
+            .solution-panel button { flex: 1 1 100%; }
+        }
+    </style>
+</head>
+<body>
+<div class="game-container" id="app">
+    <h1>⚖️ Dignidade Ativa</h1>
+    <div class="sub">🧠 Soluções reais: Sindicato • Denúncia • Organização</div>
+
+    <div class="status-panel">
+        <div class="stat"><span id="dayDisplay">0</span><small>Dia</small></div>
+        <div class="stat good"><span id="moneyDisplay">R$200</span><small>💰 Verba</small></div>
+        <div class="stat good"><span id="healthDisplay">100%</span><small>❤️ Saúde</small></div>
+        <div class="stat"><span id="stressDisplay">0%</span><small>⚠️ Estresse</small></div>
+    </div>
+
+    <div class="event-box">
+        <h4 id="eventTitle">📌 Situação</h4>
+        <p id="eventDesc">Clique em "Avançar" para enfrentar a precarização.</p>
+        <span class="hint" id="hintText">💡 Use as ações coletivas para resolver.</span>
+    </div>
+
+    <!-- Painel de SOLUÇÕES REAIS -->
+    <div class="solution-panel" id="solutionPanel">
+        <button class="btn-sind" id="sindBtn">👊 Sindicato</button>
+        <button class="btn-den" id="denBtn">📢 Denunciar (MP)</button>
+        <button class="btn-org" id="orgBtn">🤝 Organizar Coletivo</button>
+        <button class="btn-next" id="nextBtn">⏩ Avançar Dia</button>
+        <button class="btn-reset" id="resetBtn">🔄 Recomeçar</button>
+    </div>
+
+    <div class="log" id="logArea"><strong>📋 Histórico:</strong> Use a força coletiva para vencer!</div>
+</div>
+<script>
+    (function() {
+        // --- ESTADO ---
+        let S = {
+            day: 0,
+            money: 200,
+            health: 100,
+            stress: 0,
+            gameOver: false,
+            usedEvents: new Set(),
+            currentEvent: null,
+            log: [],
+            hasSindicato: false,   // Solução real 1
+            hasDenuncia: false,    // Solução real 2
+            hasOrganizacao: false  // Solução real 3
+        };
+
+        // --- EVENTOS (com soluções embutidas) ---
+        const EVENTS = [
+            {
+                id: 'e1',
+                title: '📄 Contrato PJ Fraudulento',
+                desc: 'Empresa quer te registrar como PJ para não pagar férias, 13º e FGTS.',
+                hint: 'Solução: Sindicato pode orientar ação trabalhista.',
+                baseEffect: { money: 0, health: -15, stress: 20, msg: 'Aceitou passivamente. Perdeu direitos.' }
+            },
+            {
+                id: 'e2',
+                title: '⏰ Jornada 6x1 sem Descanso',
+                desc: 'Trabalha 6 dias seguidos, folga 1. Sem tempo para viver.',
+                hint: 'Solução: Organize os colegas para negociar escala 5x2.',
+                baseEffect: { money: 50, health: -20, stress: 25, msg: 'Aceitou a escala abusiva. Saúde em queda.' }
+            },
+            {
+                id: 'e3',
+                title: '🧑‍⚖️ Assédio Moral do Supervisor',
+                desc: 'Supervisor te humilha e grita com você diariamente.',
+                hint: 'Solução: Denuncie ao Ministério Público do Trabalho.',
+                baseEffect: { money: 0, health: -30, stress: 35, msg: 'Engoliu o assédio. Sua mente está exausta.' }
+            },
+            {
+                id: 'e4',
+                title: '⚠️ Falta de EPI (Equipamento)',
+                desc: 'Opera máquinas sem luva, capacete ou bota de segurança.',
+                hint: 'Solução: Denúncia imediata ao MPT ou sindicato.',
+                baseEffect: { money: 80, health: -40, stress: 20, msg: 'Trabalhou sem EPI. Quase sofreu um acidente.' }
+            },
+            {
+                id: 'e5',
+                title: '🏦 Salário Atrasado há 2 Meses',
+                desc: 'Empresa não paga os salários. Contas estão vencendo.',
+                hint: 'Solução: Sindicato aciona a justiça para penhorar bens.',
+                baseEffect: { money: -50, health: -20, stress: 40, msg: 'Esperou mais um mês. Dívidas aumentaram.' }
+            }
+        ];
+
+        // DOM refs
+        const dayD = document.getElementById('dayDisplay');
+        const moneyD = document.getElementById('moneyDisplay');
+        const healthD = document.getElementById('healthDisplay');
+        const stressD = document.getElementById('stressDisplay');
+        const titleD = document.getElementById('eventTitle');
+        const descD = document.getElementById('eventDesc');
+        const hintD = document.getElementById('hintText');
+        const logD = document.getElementById('logArea');
+
+        const sindBtn = document.getElementById('sindBtn');
+        const denBtn = document.getElementById('denBtn');
+        const orgBtn = document.getElementById('orgBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        function clamp(v, min, max) { return Math.min(max, Math.max(min, v)); }
+
+        function addLog(msg) {
+            S.log.push(msg);
+            if (S.log.length > 30) S.log.shift();
+            logD.innerHTML = `<strong>📋 Histórico:</strong> ` + S.log.join(' • ');
+        }
+
+        function updateUI() {
+            dayD.textContent = S.day;
+            moneyD.textContent = `R$${S.money}`;
+            healthD.textContent = `${S.health}%`;
+            stressD.textContent = `${S.stress}%`;
+            // Cores
+            healthD.parentElement.className = 'stat ' + (S.health < 30 ? 'bad' : S.health < 60 ? 'warn' : 'good');
+            stressD.parentElement.className = 'stat ' + (S.stress > 70 ? 'bad' : S.stress > 40 ? 'warn' : '');
+        }
+
+        function checkGameOver() {
+            if (S.health <= 0 || S.stress >= 100) {
+                S.gameOver = true;
+                descD.innerHTML = '💀 <strong>VOCÊ ADOECEU!</strong> A precarização venceu. Mas na vida real, a luta coletiva pode reverter isso. Recomece.';
+                hintD.textContent = '❌ Fim. Clique em "Recomeçar".';
+                disableAll(true);
+                return true;
+            }
+            if (S.day >= 30) {
+                S.gameOver = true;
+                let msg = '🏆 <strong>VITÓRIA! 30 Dias.</strong> ';
+                if (S.hasSindicato || S.hasDenuncia || S.hasOrganizacao) {
+                    msg += 'Você usou ações coletivas e mostrou que a união vence a precarização! Parabéns!';
+                } else {
+                    msg += 'Você sobreviveu, mas sem lutar coletivamente. Tente usar as ferramentas sociais na próxima.';
+                }
+                descD.innerHTML = msg;
+                hintD.textContent = '🎉 Fim de jogo. Recomece para testar novas estratégias.';
+                disableAll(true);
+                return true;
+            }
+            return false;
+        }
+
+        function disableAll(disabled) {
+            sindBtn.disabled = disabled;
+            denBtn.disabled = disabled;
+            orgBtn.disabled = disabled;
+            nextBtn.disabled = disabled;
+        }
+
+        // --- CARREGAR EVENTO ---
+        function loadEvent() {
+            if (S.gameOver) return;
+            const avail = EVENTS.filter(e => !S.usedEvents.has(e.id));
+            const ev = avail.length > 0 ? avail[Math.floor(Math.random() * avail.length)] : EVENTS[Math.floor(Math.random() * EVENTS.length)];
+            S.currentEvent = ev;
+            S.usedEvents.add(ev.id);
+
+            titleD.textContent = ev.title;
+            descD.textContent = ev.desc;
+            hintD.textContent = `💡 ${ev.hint}`;
+            nextBtn.disabled = true;
+            // Habilita botões de solução
+            sindBtn.disabled = false;
+            denBtn.disabled = false;
+            orgBtn.disabled = false;
+        }
+
+        // --- APLICAR EFEITO BASE (quando não usa solução) ---
+        function applyBaseEffect() {
+            if (!S.currentEvent) return;
+            const ev = S.currentEvent;
+            const eff = ev.baseEffect;
+            S.money += eff.money || 0;
+            S.health = clamp(S.health + (eff.health || 0), 0, 100);
+            S.stress = clamp(S.stress + (eff.stress || 0), 0, 100);
+            addLog(`Dia ${S.day}: ${eff.msg}`);
+            S.currentEvent = null;
+            updateUI();
+            checkGameOver();
+            if (!S.gameOver) {
+                descD.innerHTML = `⚡ <strong>Resultado:</strong> ${eff.msg}`;
+                hintD.textContent = '🔄 Clique em "Avançar Dia" para continuar.';
+                nextBtn.disabled = false;
+                sindBtn.disabled = true;
+                denBtn.disabled = true;
+                orgBtn.disabled = true;
+            }
+        }
+
+        // --- SOLUÇÕES REAIS (OVERRIDE do efeito base) ---
+        function aplicarSolucao(tipo) {
+            if (S.gameOver || !S.currentEvent) return;
+            const ev = S.currentEvent;
+            let msg = '';
+            let bonusMoney = 0, bonusHealth = 0, bonusStress = 0;
+
+            // Cada solução resolve o problema de um jeito específico
+            switch(tipo) {
+                case 'sindicato':
+                    if (!S.hasSindicato) S.hasSindicato = true;
+                    // Sindicato reduz dano em 60% e garante correção
+                    bonusHealth = Math.abs(ev.baseEffect.health || 0) * 0.6; // recupera 60% do dano
+                    bonusStress = -Math.abs(ev.baseEffect.stress || 0) * 0.5;
+                    bonusMoney = 100; // conquista de reajuste
+                    msg = `👊 Sindicato agiu! O dano foi reduzido, você ganhou R$100 de reajuste e seu estresse caiu.`;
+                    addLog(`Dia ${S.day}: Sindicato resolveu o problema de "${ev.title}"`);
+                    break;
+                case 'denuncia':
+                    if (!S.hasDenuncia) S.hasDenuncia = true;
+                    // Denúncia anula o dano, mas pode gerar conflito (perde um pouco de $)
+                    bonusHealth = Math.abs(ev.baseEffect.health || 0) * 0.9;
+                    bonusStress = -Math.abs(ev.baseEffect.stress || 0) * 0.8;
+                    bonusMoney = -30; // custo com advogado / custas
+                    msg = `📢 Denúncia formal ao MPT! O problema foi resolvido na lei. Você pagou R$30 de custas, mas sua saúde está preservada.`;
+                    addLog(`Dia ${S.day}: Denunciou ao Ministério Público.`);
+                    break;
+                case 'organizacao':
+                    if (!S.hasOrganizacao) S.hasOrganizacao = true;
+                    // Organização coletiva dá força, mas exige tempo
+                    bonusHealth = Math.abs(ev.baseEffect.health || 0) * 0.5;
+                    bonusStress = -Math.abs(ev.baseEffect.stress || 0) * 0.7;
+                    bonusMoney = 50; // conquista de pequeno bônus
+                    msg = `🤝 Você organizou uma assembleia com os colegas! A pressão coletiva fez a empresa recuar. Ganhou R$50 de ajuda de custo.`;
+                    addLog(`Dia ${S.day}: Organização coletiva forçou mudança.`);
+                    break;
+                default: return;
+            }
+
+            // Aplica os bônus (sempre positivos)
+            S.health = clamp(S.health + bonusHealth, 0, 100);
+            S.stress = clamp(S.stress + bonusStress, 0, 100);
+            S.money += bonusMoney;
+
+            S.currentEvent = null;
+            updateUI();
+            descD.innerHTML = `✅ <strong>Solução Aplicada:</strong> ${msg}`;
+            hintD.textContent = '🎯 Você usou uma ferramenta real contra a precarização! Avance o dia.';
+            nextBtn.disabled = false;
+            sindBtn.disabled = true;
+            denBtn.disabled = true;
+            orgBtn.disabled = true;
+            checkGameOver();
+        }
+
+        // --- AVANÇAR DIA ---
+        function advanceDay() {
+            if (S.gameOver) return;
+            if (S.currentEvent !== null) {
+                // Se não resolveu, aplica o efeito base (sofre as consequências)
+                applyBaseEffect();
+                return;
+            }
+            S.day++;
+            // Pequena recuperação natural
+            S.health = clamp(S.health + 2, 0, 100);
+            S.stress = clamp(S.stress - 3, 0, 100);
+            updateUI();
+            if (checkGameOver()) return;
+            addLog(`📅 Dia ${S.day} começou.`);
+            loadEvent();
+        }
+
+        // --- RESET ---
+        function resetGame() {
+            S.day = 0;
+            S.money = 200;
+            S.health = 100;
+            S.stress = 0;
+            S.gameOver = false;
+            S.usedEvents.clear();
+            S.currentEvent = null;
+            S.hasSindicato = false;
+            S.hasDenuncia = false;
+            S.hasOrganizacao = false;
+            S.log = ['🔄 Nova jornada. Use as soluções coletivas!'];
+            updateUI();
+            logD.innerHTML = `<strong>📋 Histórico:</strong> ` + S.log.join(' • ');
+            disableAll(false);
+            nextBtn.disabled = true;
+            // Primeiro evento
+            S.day = 0;
+            setTimeout(() => { advanceDay(); }, 50);
+        }
+
+        // --- EVENT LISTENERS ---
+        sindBtn.addEventListener('click', () => aplicarSolucao('sindicato'));
+        denBtn.addEventListener('click', () => aplicarSolucao('denuncia'));
+        orgBtn.addEventListener('click', () => aplicarSolucao('organizacao'));
+        nextBtn.addEventListener('click', advanceDay);
+        resetBtn.addEventListener('click', resetGame);
+
+        // INICIAR
+        resetGame();
+    })();
+</script>
+</body>
+</html>
